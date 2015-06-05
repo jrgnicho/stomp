@@ -8,7 +8,9 @@
 #ifndef STOMP_TRAJECTORY_H_
 #define STOMP_TRAJECTORY_H_
 
-#include <moveit/kinematic_state/kinematic_state.h>
+//#include <moveit/kinematic_state/kinematic_state.h>
+#include <moveit/robot_model/robot_model.h>
+#include <moveit/robot_state/robot_state.h>
 #include <eigen_stl_containers/eigen_stl_vector_container.h>
 #include <stomp/covariant_movement_primitive.h>
 
@@ -18,7 +20,7 @@ namespace stomp_moveit_interface
 class StompTrajectory
 {
 public:
-  StompTrajectory(int num_time_steps, const kinematic_model::KinematicModelConstPtr &kinematic_model,
+  StompTrajectory(int num_time_steps, const moveit::core::RobotModelConstPtr &kinematic_model,
                   const std::string& group_name, const boost::shared_ptr<stomp::CovariantMovementPrimitive>& primitive);
   virtual ~StompTrajectory();
 
@@ -30,11 +32,11 @@ public:
   std::string group_name_;
 
   // classes for computing kinematic info
-  kinematic_model::KinematicModelConstPtr kinematic_model_;
-  std::vector<kinematic_state::KinematicState> kinematic_states_;     /**< [num_time_steps] */
-  std::vector<kinematic_state::JointStateGroup*> joint_state_groups_; /**< [num_time_steps] */
-  std::vector<kinematic_state::LinkState*> endeffector_link_states_; /**< [num_time_steps] */
-  std::vector<const kinematic_model::JointModel*> joint_models_; /**< [num_joints] */
+  moveit::core::RobotModelConstPtr kinematic_model_;
+  std::vector<moveit::core::RobotState> kinematic_states_;     /**< [num_time_steps] */
+  std::vector<moveit::core::JointModelGroup*> joint_state_groups_; /**< [num_time_steps] */
+  std::vector<moveit::core::LinkModel*> endeffector_link_states_; /**< [num_time_steps] */
+  std::vector<const moveit::core::JointModel*> joint_models_; /**< [num_joints] */
 
   // joint trajectories - pos, vel, acc
   Eigen::MatrixXd joint_pos_;               /**< num_joints x num_time_steps */

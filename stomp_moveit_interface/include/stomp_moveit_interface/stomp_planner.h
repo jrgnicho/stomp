@@ -14,13 +14,13 @@
 namespace stomp_moveit_interface
 {
 
-class StompPlanner: public planning_interface::Planner
+class StompPlanner: public planning_interface::PlanningContext
 {
 public:
-  StompPlanner();
+  StompPlanner(const std::string& group);
   virtual ~StompPlanner();
 
-  virtual void init(const kinematic_model::KinematicModelConstPtr& model);
+  virtual void init(const moveit::core::RobotModelConstPtr& model);
 
   /// Get a short string that identifies the planning interface
   virtual std::string getDescription(void) const { return "STOMP"; }
@@ -29,19 +29,19 @@ public:
   virtual void getPlanningAlgorithms(std::vector<std::string> &algs) const;
 
   /// Subclass must implement methods below
-  virtual bool solve(const planning_scene::PlanningSceneConstPtr& planning_scene,
-                     const moveit_msgs::MotionPlanRequest &req,
-                     moveit_msgs::MotionPlanResponse &res) const;
+  virtual bool solve(planning_interface::MotionPlanResponse &res);
 
-  virtual bool solve(const planning_scene::PlanningSceneConstPtr& planning_scene,
-                     const moveit_msgs::MotionPlanRequest &req,
-                     moveit_msgs::MotionPlanDetailedResponse &res) const;
+  virtual bool solve(planning_interface::MotionPlanDetailedResponse &res);
 
   /// Determine whether this plugin instance is able to represent this planning request
   virtual bool canServiceRequest(const moveit_msgs::MotionPlanRequest &req)  const;
 
   /// Request termination, if a solve() function is currently computing plans
-  virtual void terminate(void) const;
+  virtual bool terminate() ;
+
+  virtual void clear();
+
+
 
 private:
   ros::NodeHandle node_handle_;
@@ -50,7 +50,7 @@ private:
   ros::Publisher robot_body_viz_pub_;
   //boost::shared_ptr<stomp::STOMP> stomp_;
   //std::map<std::string, boost::shared_ptr<StompOptimizationTask> > stomp_tasks_;
-  kinematic_model::KinematicModelConstPtr kinematic_model_;
+  moveit::core::RobotModelConstPtr kinematic_model_;
 
   // distance field params
   double df_size_x_, df_size_y_, df_size_z_;

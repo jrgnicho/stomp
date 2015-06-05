@@ -11,7 +11,7 @@
 namespace stomp_moveit_interface
 {
 
-StompTrajectory::StompTrajectory(int num_time_steps, const kinematic_model::KinematicModelConstPtr &kinematic_model,
+StompTrajectory::StompTrajectory(int num_time_steps, const moveit::core::RobotModelConstPtr &kinematic_model,
                                  const std::string& group_name, const boost::shared_ptr<stomp::CovariantMovementPrimitive>& primitive)
 {
   num_time_steps_ = num_time_steps;
@@ -20,24 +20,24 @@ StompTrajectory::StompTrajectory(int num_time_steps, const kinematic_model::Kine
   covariant_movement_primitive_ = primitive;
 
   // get the end-effector name
-  const kinematic_model::JointModelGroup* joint_group = kinematic_model->getJointModelGroup(group_name_);
+  const moveit::core::JointModelGroup* joint_group = kinematic_model->getJointModelGroup(group_name_);
   ROS_ASSERT(joint_group != NULL);
   std::vector<std::string> endeffector_group_names = joint_group->getAttachedEndEffectorNames();
   ROS_ASSERT_MSG(endeffector_group_names.size() == 1, "STOMP: We only handle groups with one endeffector for now");
-  const kinematic_model::JointModelGroup* endeff_joint_group = kinematic_model->getEndEffector(endeffector_group_names[0]);
+  const moveit::core::JointModelGroup* endeff_joint_group = kinematic_model->getEndEffector(endeffector_group_names[0]);
   ROS_ASSERT(endeff_joint_group != NULL);
   std::string endeffector_name = endeff_joint_group->getEndEffectorParentGroup().second;
 
   //ROS_INFO("StompTrajectory: Group %s has endeffector %s", group_name_.c_str(), endeffector_name.c_str());
 
   // pre allocate all memory
-  kinematic_states_.resize(num_time_steps, kinematic_state::KinematicState(kinematic_model));
+  kinematic_states_.resize(num_time_steps, moveit::core::RobotState(kinematic_model));
   joint_state_groups_.resize(num_time_steps);
   endeffector_link_states_.resize(num_time_steps);
   for (int i=0; i<num_time_steps; ++i)
   {
-    joint_state_groups_[i] = kinematic_states_[i].getJointStateGroup(group_name);
-    endeffector_link_states_[i] = kinematic_states_[i].getLinkState(endeffector_name);
+    joint_state_groups_[i] = kinematic_states_[i].getJointModelGroup(group_name);
+    endeffector_link_states_[i] = kinematic_states_[i].getLinkModel(endeffector_name);
     ROS_ASSERT(joint_state_groups_[i] != NULL);
     ROS_ASSERT(endeffector_link_states_[i] != NULL);
   }
