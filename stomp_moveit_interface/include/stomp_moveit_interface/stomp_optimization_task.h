@@ -28,8 +28,8 @@ public:
                         moveit::core::RobotModelConstPtr kinematic_model,
                         boost::shared_ptr<const collision_detection::CollisionRobot> collision_robot,
                         boost::shared_ptr<const collision_detection::CollisionWorld> collision_world,
-                        boost::shared_ptr<const collision_detection::CollisionRobotFCL> collision_robot_df,
-                        boost::shared_ptr<const collision_detection::CollisionWorldFCL> collision_world_df);
+                        boost::shared_ptr<const collision_detection::CollisionRobotDistanceField> collision_robot_df,
+                        boost::shared_ptr<const collision_detection::CollisionWorldDistanceField> collision_world_df);
   virtual ~StompOptimizationTask();
 
   virtual bool initialize(int num_threads, int num_rollouts);
@@ -150,8 +150,8 @@ private:
 
   boost::shared_ptr<const collision_detection::CollisionRobot> collision_robot_; /**< standard robot collision checker */
   boost::shared_ptr<const collision_detection::CollisionWorld> collision_world_; /**< standard robot -> world collision checker */
-  boost::shared_ptr<const collision_detection::CollisionRobotFCL> collision_robot_df_;    /**< distance field robot collision checker */
-  boost::shared_ptr<const collision_detection::CollisionWorldFCL> collision_world_df_;    /**< distance field robot -> world collision checker */
+  boost::shared_ptr<const collision_detection::CollisionRobotDistanceField> collision_robot_df_;    /**< distance field robot collision checker */
+  boost::shared_ptr<const collision_detection::CollisionWorldDistanceField> collision_world_df_;    /**< distance field robot -> world collision checker */
 
 };
 

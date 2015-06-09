@@ -82,8 +82,8 @@ bool StompPlanner::solve(planning_interface::MotionPlanDetailedResponse &res)
   // prepare the collision checkers
   boost::shared_ptr<const collision_detection::CollisionRobot> collision_robot; /**< standard robot collision checker */
   boost::shared_ptr<const collision_detection::CollisionWorld> collision_world; /**< standard robot -> world collision checker */
-  boost::shared_ptr<collision_detection::CollisionRobotFCL> collision_robot_df;    /**< distance field robot collision checker */
-  boost::shared_ptr<collision_detection::CollisionWorldFCL> collision_world_df;    /**< distance field robot -> world collision checker */
+  boost::shared_ptr<collision_detection::CollisionRobotDistanceField> collision_robot_df;    /**< distance field robot collision checker */
+  boost::shared_ptr<collision_detection::CollisionWorldDistanceField> collision_world_df;    /**< distance field robot -> world collision checker */
 
   collision_robot = planning_scene_->getCollisionRobot();
   collision_world = planning_scene_->getCollisionWorld();
@@ -96,8 +96,8 @@ bool StompPlanner::solve(planning_interface::MotionPlanDetailedResponse &res)
   //link_body_decompositions["r_shoulder_pan_link"] = std::vector<collision_detection::CollisionSphere>();
   //link_body_decompositions["r_shoulder_lift_link"] = std::vector<collision_detection::CollisionSphere>();
 
-  collision_robot_df.reset(new collision_detection::CollisionRobotFCL(kinematic_model_,padding, scale));
-  collision_world_df.reset(new collision_detection::CollisionWorldFCL());
+  collision_robot_df.reset(new collision_detection::CollisionRobotDistanceField(kinematic_model_));
+  collision_world_df.reset(new collision_detection::CollisionWorldDistanceField());
   copyObjects(collision_world, collision_world_df);
 
 

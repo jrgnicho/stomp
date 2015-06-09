@@ -13,5 +13,5 @@
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "test_stomp_moveit_interface");
-  stomp_moveit_interface::StompPlanner stomp_planner;
+  stomp_moveit_interface::StompPlanner stomp_planner("Stomp");
 }

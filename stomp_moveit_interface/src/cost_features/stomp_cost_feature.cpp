@@ -13,7 +13,7 @@ namespace stomp_moveit_interface
 bool StompCostFeature::initialize(XmlRpc::XmlRpcValue& config,
                                   int num_threads,
                                   const std::string& group_name,
-                                  kinematic_model::KinematicModelConstPtr kinematic_model,
+                                  moveit::core::RobotModelConstPtr kinematic_model,
                                   boost::shared_ptr<const collision_detection::CollisionRobot> collision_robot,
                                   boost::shared_ptr<const collision_detection::CollisionWorld> collision_world,
                                   boost::shared_ptr<const collision_detection::CollisionRobotDistanceField> collision_robot_df,

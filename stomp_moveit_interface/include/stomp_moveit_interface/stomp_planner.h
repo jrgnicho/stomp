@@ -9,6 +9,8 @@
 #define STOMP_PLANNER_H_
 
 #include <moveit/planning_interface/planning_interface.h>
+#include <moveit/collision_detection/collision_robot.h>
+#include <moveit/collision_detection/collision_world.h>
 #include <ros/ros.h>
 
 namespace stomp_moveit_interface

@@ -20,8 +20,8 @@ StompOptimizationTask::StompOptimizationTask(ros::NodeHandle node_handle,
                                              moveit::core::RobotModelConstPtr kinematic_model,
                                              boost::shared_ptr<const collision_detection::CollisionRobot> collision_robot,
                                              boost::shared_ptr<const collision_detection::CollisionWorld> collision_world,
-                                             boost::shared_ptr<const collision_detection::CollisionRobotFCL> collision_robot_df,
-                                             boost::shared_ptr<const collision_detection::CollisionWorldFCL> collision_world_df):
+                                             boost::shared_ptr<const collision_detection::CollisionRobotDistanceField> collision_robot_df,
+                                             boost::shared_ptr<const collision_detection::CollisionWorldDistanceField> collision_world_df):
     node_handle_(node_handle),
     planning_group_name_(planning_group),
     feature_loader_("stomp_moveit_interface", "stomp_moveit_interface::StompCostFeature"),
