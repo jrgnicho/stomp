@@ -1,4 +1,4 @@
 stomp
 =====
 
-STOMP motion planner for ROS Groovy
+STOMP motion planner for ROS Indigo
