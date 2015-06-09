@@ -9,6 +9,7 @@
 #define COLLISION_FEATURE_H_
 
 #include <stomp_moveit_interface/cost_features/stomp_cost_feature.h>
+#include <moveit/collision_distance_field/collision_common_distance_field.h>
 
 namespace stomp_moveit_interface
 {

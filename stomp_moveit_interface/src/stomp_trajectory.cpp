@@ -37,7 +37,7 @@ StompTrajectory::StompTrajectory(int num_time_steps, const moveit::core::RobotMo
   for (int i=0; i<num_time_steps; ++i)
   {
     joint_state_groups_[i] = kinematic_states_[i].getJointModelGroup(group_name);
-    endeffector_link_states_[i] = kinematic_states_[i].getLinkModel(endeffector_name);
+    endeffector_link_states_[i] = const_cast<moveit::core::LinkModel*>( kinematic_states_[i].getLinkModel(endeffector_name) );
     ROS_ASSERT(joint_state_groups_[i] != NULL);
     ROS_ASSERT(endeffector_link_states_[i] != NULL);
   }
@@ -71,7 +71,7 @@ bool StompTrajectory::filterJoints(std::vector<Eigen::VectorXd>& joint_positions
     for (int t=0; t< joint_positions[j].rows(); ++t)
     {
       tmp_joint_filter_[0] = joint_positions[j](t);
-      joint_models_[j]->enforceBounds(tmp_joint_filter_);
+      joint_models_[j]->enforcePositionBounds(tmp_joint_filter_.data());
       if (tmp_joint_filter_[0] != joint_positions[j](t))
         filtered = true;
     }
@@ -98,10 +98,12 @@ void StompTrajectory::setJointPositions(const std::vector<Eigen::VectorXd>& join
     {
       tmp_joint_angles_[j] = joint_pos_(j,t);
     }
-    joint_state_groups_[t]->setVariableValues(tmp_joint_angles_);
+    //joint_state_groups_[t]->setVariableValues(tmp_joint_angles_);
+    kinematic_states_[t].setJointGroupPositions(joint_state_groups_[t],tmp_joint_angles_);
 
     // get end-effector positions
-    endeffector_pos_[t] = endeffector_link_states_[t]->getGlobalLinkTransform();
+    //endeffector_pos_[t] = endeffector_link_states_[t]->getGlobalLinkTransform();
+    endeffector_pos_[t] = kinematic_states_[t].getFrameTransform(endeffector_link_states_[t]->getName());
   }
 
   // differentiation

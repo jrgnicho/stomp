@@ -17,11 +17,11 @@ namespace stomp_moveit_interface
 
 StompOptimizationTask::StompOptimizationTask(ros::NodeHandle node_handle,
                                              const std::string& planning_group,
-                                             kinematic_model::KinematicModelConstPtr kinematic_model,
+                                             moveit::core::RobotModelConstPtr kinematic_model,
                                              boost::shared_ptr<const collision_detection::CollisionRobot> collision_robot,
                                              boost::shared_ptr<const collision_detection::CollisionWorld> collision_world,
-                                             boost::shared_ptr<const collision_detection::CollisionRobotDistanceField> collision_robot_df,
-                                             boost::shared_ptr<const collision_detection::CollisionWorldDistanceField> collision_world_df):
+                                             boost::shared_ptr<const collision_detection::CollisionRobotFCL> collision_robot_df,
+                                             boost::shared_ptr<const collision_detection::CollisionWorldFCL> collision_world_df):
     node_handle_(node_handle),
     planning_group_name_(planning_group),
     feature_loader_("stomp_moveit_interface", "stomp_moveit_interface::StompCostFeature"),
@@ -294,17 +294,28 @@ bool StompOptimizationTask::setMotionPlanRequest(const planning_scene::PlanningS
   num_dimensions_ = joint_model_group_->getVariableCount();
 
   // get the start and goal positions from the message
-  kinematic_state::KinematicState kinematic_state(kinematic_model_);
-  kinematic_state.setStateValues(request.start_state.joint_state);
-  kinematic_state.getJointStateGroup(planning_group_name_)->getVariableValues(start_joints_);
+  moveit::core::RobotState kinematic_state(kinematic_model_);
+
+  //kinematic_state.setStateValues(request.start_state.joint_state);
+  const sensor_msgs::JointState &js = request.start_state.joint_state;
+  kinematic_state.setVariablePositions(js.name,js.position);
+
+  //kinematic_state.getJointStateGroup(planning_group_name_)->getVariableValues(start_joints_);
+  start_joints_.clear();
+  kinematic_state.copyJointGroupPositions(planning_group_name_,start_joints_);
+
   std::map<std::string, double> goal_joint_map;
   for (size_t i=0; i<request.goal_constraints[0].joint_constraints.size(); ++i)
   {
     goal_joint_map[request.goal_constraints[0].joint_constraints[i].joint_name] =
         request.goal_constraints[0].joint_constraints[i].position;
   }
-  kinematic_state.setStateValues(goal_joint_map);
-  kinematic_state.getJointStateGroup(planning_group_name_)->getVariableValues(goal_joints_);
+  //kinematic_state.setStateValues(goal_joint_map);
+  kinematic_state.setVariablePositions(goal_joint_map);
+
+  //kinematic_state.getJointStateGroup(planning_group_name_)->getVariableValues(goal_joints_);
+  goal_joints_.clear();
+  kinematic_state.copyJointGroupPositions(planning_group_name_,goal_joints_);
 
   // create the derivative costs
   std::vector<Eigen::MatrixXd> derivative_costs(num_dimensions_,
@@ -374,10 +385,9 @@ bool StompOptimizationTask::setMotionPlanRequest(const planning_scene::PlanningS
     collision_request.group_name = planning_group_name_;
     collision_request.contacts = true;
     collision_request.max_contacts = 100;
-    boost::shared_ptr<collision_detection::GroupStateRepresentation> gsr;
-    collision_world_df_->checkCollision(collision_request, collision_result, *collision_robot_df_,
-                                        kinematic_state, planning_scene_->getAllowedCollisionMatrix(),
-                                        gsr);
+    //boost::shared_ptr<collision_detection::GroupStateRepresentation> gsr;
+    collision_world_df_->checkRobotCollision(collision_request, collision_result, *collision_robot_df_,
+                                        kinematic_state, planning_scene_->getAllowedCollisionMatrix());
     // this is the goal state, there should be no collisions
 
     if (collision_result.collision)
@@ -390,7 +400,7 @@ bool StompOptimizationTask::setMotionPlanRequest(const planning_scene::PlanningS
       }
     }
 
-    boost::shared_ptr<const distance_field::DistanceField> robot_df = collision_robot_df_->getLastDistanceFieldEntry()->distance_field_;
+/*    boost::shared_ptr<const distance_field::DistanceField> robot_df = collision_robot_df_->getLastDistanceFieldEntry()->distance_field_;
     boost::shared_ptr<const distance_field::DistanceField> world_df = collision_world_df_->getDistanceField();
     visualization_msgs::Marker robot_df_marker, world_df_marker;
     robot_df->getIsoSurfaceMarkers(0.0, 0.03, reference_frame_, ros::Time::now(), Eigen::Affine3d::Identity(), robot_df_marker);
@@ -403,7 +413,7 @@ bool StompOptimizationTask::setMotionPlanRequest(const planning_scene::PlanningS
     // visualize the robot model too
     visualization_msgs::MarkerArray body_marker_array;
     getBodySphereVisualizationMarkers(gsr, reference_frame_, ros::Time::now(), body_marker_array);
-    viz_robot_body_pub_.publish(body_marker_array);
+    viz_robot_body_pub_.publish(body_marker_array);*/
   }
 
   return true;

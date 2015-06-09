@@ -3,7 +3,7 @@ project(stomp_moveit_interface)
 
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
 
-find_package(catkin REQUIRED COMPONENTS stomp moveit_core pluginlib cmake_modules)
+find_package(catkin REQUIRED COMPONENTS stomp moveit_core pluginlib moveit_experimental cmake_modules)
 find_package(Eigen REQUIRED)
 
 catkin_package(

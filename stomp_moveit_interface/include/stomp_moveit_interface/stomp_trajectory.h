@@ -34,7 +34,7 @@ public:
   // classes for computing kinematic info
   moveit::core::RobotModelConstPtr kinematic_model_;
   std::vector<moveit::core::RobotState> kinematic_states_;     /**< [num_time_steps] */
-  std::vector<moveit::core::JointModelGroup*> joint_state_groups_; /**< [num_time_steps] */
+  std::vector<const moveit::core::JointModelGroup*> joint_state_groups_; /**< [num_time_steps] */
   std::vector<moveit::core::LinkModel*> endeffector_link_states_; /**< [num_time_steps] */
   std::vector<const moveit::core::JointModel*> joint_models_; /**< [num_joints] */
 
