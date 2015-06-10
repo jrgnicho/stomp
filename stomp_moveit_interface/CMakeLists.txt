@@ -13,6 +13,10 @@ catkin_package(
   DEPENDS 
 )
 
+include_directories(include
+  ${catkin_INCLUDE_DIRS}
+)
+
 add_library(stomp_moveit_interface
   src/feature_set.cpp
   src/stomp_planner.cpp
@@ -31,25 +35,19 @@ add_library(stomp_moveit_interface
 #  src/treefksolverjointposaxis_partial.cpp
 )
 
+target_link_libraries(stomp_moveit_interface
+  ${catkin_LIBRARIES})
+
+add_library(stomp_planner_plugin
+  src/stomp_planner_manager.cpp)
+target_link_libraries(stomp_planner_plugin stomp_moveit_interface ${catkin_LIBRARIES})
+
 add_executable(test_stomp_moveit_interface
   test/test_stomp_moveit_interface.cpp
 )
 target_link_libraries(test_stomp_moveit_interface stomp_moveit_interface)
 
-#add_executable(display_robot_model
-#  src/display_robot_model.cpp
-#)
 
-#target_link_libraries(display_robot_model stomp_moveit_interface)
 
-#add_executable(stomp_node
-#  src/stomp_node.cpp
-#)
 
-#target_link_libraries(stomp_node stomp_moveit_interface)
 
-include_directories(include
-  ${catkin_INCLUDE_DIRS}
-)
-target_link_libraries(stomp_moveit_interface
-  ${catkin_LIBRARIES})

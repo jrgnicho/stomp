@@ -14,8 +14,6 @@
 #include <moveit/collision_detection/collision_world.h>
 #include <moveit/collision_detection_fcl/collision_robot_fcl.h>
 #include <moveit/collision_detection_fcl/collision_world_fcl.h>
-//#include <moveit/collision_distance_field/collision_world_distance_field.h>
-//#include <moveit/collision_distance_field/collision_robot_distance_field.h>
 #include <class_loader/class_loader.h>
 
 namespace stomp_moveit_interface
@@ -27,6 +25,7 @@ StompPlanner::StompPlanner(const std::string& group):
 {
   trajectory_viz_pub_ = node_handle_.advertise<visualization_msgs::Marker>("marker", 20);
   robot_body_viz_pub_ = node_handle_.advertise<visualization_msgs::MarkerArray>("marker_array", 20);
+
 }
 
 StompPlanner::~StompPlanner()

@@ -20,7 +20,6 @@
 
   <export>
     <moveit_core plugin="${prefix}/stomp_moveit_interface_plugin.xml"/>
-    <stomp_moveit_interface plugin="${prefix}/cost_feature_plugins.xml"/>
   </export>
 
 </package>
