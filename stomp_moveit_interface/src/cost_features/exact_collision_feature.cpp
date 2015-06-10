@@ -9,10 +9,7 @@
 #include <visualization_msgs/Marker.h>
 #include <visualization_msgs/MarkerArray.h>
 
-PLUGINLIB_DECLARE_CLASS(stomp_moveit_interface,
-                        ExactCollisionFeature,
-                        stomp_moveit_interface::ExactCollisionFeature,
-                        stomp_moveit_interface::StompCostFeature);
+PLUGINLIB_EXPORT_CLASS(stomp_moveit_interface::ExactCollisionFeature,stomp_moveit_interface::StompCostFeature);
 
 namespace stomp_moveit_interface
 {

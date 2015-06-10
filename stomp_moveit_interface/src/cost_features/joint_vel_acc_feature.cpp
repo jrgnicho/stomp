@@ -8,10 +8,7 @@
 #include <stomp_ros_interface/cost_features/joint_vel_acc_feature.h>
 #include <stomp_ros_interface/stomp_cost_function_input.h>
 
-PLUGINLIB_DECLARE_CLASS(stomp_ros_interface,
-                        JointVelAccFeature,
-                        stomp_ros_interface::JointVelAccFeature,
-                        stomp_ros_interface::StompCostFeature);
+PLUGINLIB_EXPORT_CLASS(stomp_ros_interface::JointVelAccFeature, stomp_ros_interface::StompCostFeature);
 
 namespace stomp_ros_interface
 {

@@ -9,10 +9,7 @@
 #include <stomp_moveit_interface/sigmoid.h>
 #include <sstream>
 
-PLUGINLIB_DECLARE_CLASS(stomp_moveit_interface,
-                        CollisionFeature,
-                        stomp_moveit_interface::CollisionFeature,
-                        stomp_moveit_interface::StompCostFeature);
+PLUGINLIB_EXPORT_CLASS(stomp_moveit_interface::CollisionFeature,stomp_moveit_interface::StompCostFeature);
 
 namespace stomp_moveit_interface
 {

@@ -29,7 +29,10 @@ bool StompPlannerManager::initialize(const robot_model::RobotModelConstPtr &mode
     nh_ = ros::NodeHandle(ns);
 
   // Create map of planners
-  planners_.insert(std::make_pair("STOMP", new StompPlanner(std::string(""))));
+  boost::shared_ptr<StompPlanner> stomp(new StompPlanner(std::string("")));
+  stomp->init(model);
+
+  planners_.insert(std::make_pair("STOMP", stomp));
 
   return true;
 }
