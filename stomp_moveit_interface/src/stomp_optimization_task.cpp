@@ -68,6 +68,7 @@ void StompOptimizationTask::setFeaturesFromXml(const XmlRpc::XmlRpcValue& featur
 
     std::string class_name = feature_xml["class"];
 
+
     boost::shared_ptr<StompCostFeature> feature;
     try
     {

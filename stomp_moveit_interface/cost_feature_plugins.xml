@@ -1,4 +1,4 @@
-<library path="libstomp_moveit_interface">
+<library path="libstomp_cost_features">
   <!--<class name="stomp_moveit_interface/CartesianOrientationFeature" type="stomp_moveit_interface::CartesianOrientationFeature" base_class_type="stomp_moveit_interface::StompCostFeature">
     <description>
       Features related to end-effector orientation
