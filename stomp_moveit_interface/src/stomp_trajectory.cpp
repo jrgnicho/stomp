@@ -6,6 +6,7 @@
  */
 
 #include <stomp_moveit_interface/stomp_trajectory.h>
+#include <ros/console.h>
 #include <ros/assert.h>
 
 namespace stomp_moveit_interface
@@ -22,7 +23,9 @@ StompTrajectory::StompTrajectory(int num_time_steps, const moveit::core::RobotMo
   // get the end-effector name
   const moveit::core::JointModelGroup* joint_group = kinematic_model->getJointModelGroup(group_name_);
   ROS_ASSERT(joint_group != NULL);
+
   std::vector<std::string> endeffector_group_names = joint_group->getAttachedEndEffectorNames();
+  //ROS_DEBUG_STREAM(__FUNCTION__ <<" found "<< endeffector_group_names.size() <<" end effector groups");
   ROS_ASSERT_MSG(endeffector_group_names.size() == 1, "STOMP: We only handle groups with one endeffector for now");
   const moveit::core::JointModelGroup* endeff_joint_group = kinematic_model->getEndEffector(endeffector_group_names[0]);
   ROS_ASSERT(endeff_joint_group != NULL);

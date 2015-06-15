@@ -84,6 +84,7 @@ bool StompPlanner::solve(planning_interface::MotionPlanDetailedResponse &res)
   boost::shared_ptr<collision_detection::CollisionRobotDistanceField> collision_robot_df;    /**< distance field robot collision checker */
   boost::shared_ptr<collision_detection::CollisionWorldDistanceField> collision_world_df;    /**< distance field robot -> world collision checker */
 
+
   collision_robot = planning_scene_->getCollisionRobot();
   collision_world = planning_scene_->getCollisionWorld();
   //std::map<std::string, std::vector<collision_detection::CollisionSphere> > link_body_decompositions;
@@ -116,10 +117,15 @@ bool StompPlanner::solve(planning_interface::MotionPlanDetailedResponse &res)
   stomp_task->setTrajectoryVizPublisher(const_cast<ros::Publisher&>(trajectory_viz_pub_));
   stomp_task->setDistanceFieldVizPublisher((const_cast<ros::Publisher&>(trajectory_viz_pub_)));
   stomp_task->setRobotBodyVizPublisher((const_cast<ros::Publisher&>(robot_body_viz_pub_)));
+
   stomp_task->setMotionPlanRequest(planning_scene_, request_);
+
+  ROS_DEBUG_STREAM(__FUNCTION__<< " Stomp task setup complete");
 
   stomp.reset(new stomp::STOMP());
   stomp->initialize(node_handle_, stomp_task);
+
+  ROS_DEBUG_STREAM(__FUNCTION__<< " Stomp instance created");
 
   // TODO: don't hardcode these params
   bool success = stomp->runUntilValid(100, 10);
@@ -127,9 +133,11 @@ bool StompPlanner::solve(planning_interface::MotionPlanDetailedResponse &res)
   std::vector<Eigen::VectorXd> best_params;
   double best_cost;
   stomp->getBestNoiselessParameters(best_params, best_cost);
-  stomp_task->publishTrajectoryMarkers(const_cast<ros::Publisher&>(trajectory_viz_pub_), best_params);
+  //stomp_task->publishTrajectoryMarkers(const_cast<ros::Publisher&>(trajectory_viz_pub_), best_params);
+  ROS_DEBUG_STREAM(__FUNCTION__<< " published trajectory markers");
   trajectory_msgs::JointTrajectory trajectory;
   stomp_task->parametersToJointTrajectory(best_params, trajectory);
+  ROS_DEBUG_STREAM(__FUNCTION__<< " Stomp analysis completed");
 
   moveit::core::RobotState robot_state(planning_scene_->getRobotModel());
   res.trajectory_.resize(1);
@@ -144,7 +152,7 @@ bool StompPlanner::solve(planning_interface::MotionPlanDetailedResponse &res)
   {
     ROS_ERROR("STOMP: failed to find a collision-free plan");
     res.error_code_.val = moveit_msgs::MoveItErrorCodes::PLANNING_FAILED;
-    return true;
+    return false;
   }
 
   res.error_code_.val = moveit_msgs::MoveItErrorCodes::SUCCESS;

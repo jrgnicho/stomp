@@ -215,7 +215,7 @@ bool STOMP::doNoiselessRollout(int iteration_number)
   double total_cost;
   policy_improvement_.setNoiselessRolloutCosts(tmp_rollout_cost_[0], total_cost);
 
-  ROS_INFO("Noiseless cost = %lf", total_cost);
+  ROS_DEBUG_STREAM("Noiseless cost : "<< total_cost<<", best noiseless cost: "<<best_noiseless_cost_);
 
   if (total_cost < best_noiseless_cost_)
   {
@@ -233,13 +233,24 @@ bool STOMP::runSingleIteration(const int iteration_number)
 
   if (write_to_file_)
   {
+    ROS_DEBUG_STREAM(__FUNCTION__<< " writing to function");
     // load new policy if neccessary
     STOMP_VERIFY(readPolicy(iteration_number));
   }
 
-  ROS_ASSERT(doRollouts(iteration_number));
-  ROS_ASSERT(doUpdate(iteration_number));
-  ROS_ASSERT(doNoiselessRollout(iteration_number));
+
+  //ROS_ASSERT(doRollouts(iteration_number));
+  doRollouts(iteration_number);
+  //ROS_DEBUG_STREAM(__FUNCTION__<< " completed doRollouts()");
+
+  //ROS_ASSERT(doUpdate(iteration_number));
+  doUpdate(iteration_number);
+  //ROS_DEBUG_STREAM(__FUNCTION__<< " completed doUpdate()");
+
+  //ROS_ASSERT(doNoiselessRollout(iteration_number));
+  doNoiselessRollout(iteration_number);
+  //ROS_DEBUG_STREAM(__FUNCTION__<< " completed doNoiselessRollout()");
+  //ROS_DEBUG_STREAM(__FUNCTION__<< " completed single iteration");
 
   if (write_to_file_)
   {
@@ -275,6 +286,7 @@ void STOMP::getBestNoiselessParameters(std::vector<Eigen::VectorXd>& parameters,
 bool STOMP::runUntilValid(int max_iterations, int iterations_after_collision_free)
 {
   int collision_free_iterations = 0;
+  unsigned int num_iterations = 0;
   bool success = false;
   for (int i=0; i<max_iterations; ++i)
   {
@@ -293,7 +305,12 @@ bool STOMP::runUntilValid(int max_iterations, int iterations_after_collision_fre
     {
       break;
     }
+
+    num_iterations++;
   }
+
+
+  ROS_DEBUG_STREAM(__PRETTY_FUNCTION__<< " completed with success = "<<success<<" after "<<num_iterations<<" iterations");
 
   return success;
 }
