@@ -19,6 +19,12 @@
 namespace stomp_moveit_interface
 {
 
+const static int DEFAULT_MAX_ITERATIONS = 100;
+const static int DEFAULT_ITERATIONS_AFTER_COLLISION_FREE = 10;
+const static double DEFAULT_CONTROL_COST_WEIGHT = 0.001;
+const static double DEFAULT_PADDING = 0.001;
+const static double DEFAULT_SCALE = 1.0;
+
 StompPlanner::StompPlanner(const std::string& group):
     PlanningContext("STOMP",group),
     node_handle_("~")
@@ -76,6 +82,7 @@ bool StompPlanner::solve(planning_interface::MotionPlanDetailedResponse &res)
   boost::shared_ptr<stomp::STOMP> stomp;
 
   int max_rollouts;
+  int num_threads=1;
   STOMP_VERIFY(node_handle_.getParam("max_rollouts", max_rollouts));
 
   // prepare the collision checkers
@@ -89,14 +96,11 @@ bool StompPlanner::solve(planning_interface::MotionPlanDetailedResponse &res)
   collision_world = planning_scene_->getCollisionWorld();
   std::map<std::string, std::vector<collision_detection::CollisionSphere> > link_body_decompositions;
   bool use_signed_distance_field = true;
-  double padding = 0.0;
-  double scale = 1.0;
+  double padding = DEFAULT_PADDING;
+  double scale = DEFAULT_SCALE;
 
-  // TODO: remove this disgusting hack!
-  //link_body_decompositions["r_shoulder_pan_link"] = std::vector<collision_detection::CollisionSphere>();
-  //link_body_decompositions["r_shoulder_lift_link"] = std::vector<collision_detection::CollisionSphere>();
-
-  ROS_DEBUG_STREAM(__PRETTY_FUNCTION__<<": Setting up collision objects");
+  ros::Time start = ros::Time::now();
+  ROS_DEBUG_STREAM("Stomp Planner collision setup started");
   collision_robot_df.reset(new collision_detection::CollisionRobotDistanceField(kinematic_model_,
                                                                                 link_body_decompositions,
                                                                                 df_size_x_, df_size_y_, df_size_z_,
@@ -104,16 +108,14 @@ bool StompPlanner::solve(planning_interface::MotionPlanDetailedResponse &res)
                                                                                 df_resolution_, df_collision_tolerance_,
                                                                                 df_max_propagation_distance_,
                                                                                 padding, scale));
-  ROS_DEBUG_STREAM(__PRETTY_FUNCTION__<<": Created collision_detection::CollisionRobotDistanceField object");
 
   collision_world_df.reset(new collision_detection::CollisionWorldDistanceField(df_size_x_, df_size_y_, df_size_z_,
                                                                                 use_signed_distance_field,
                                                                                 df_resolution_, df_collision_tolerance_,
                                                                                 df_max_propagation_distance_));
-  ROS_DEBUG_STREAM(__PRETTY_FUNCTION__<<": Created collision_detection::CollisionRobotDistanceField object");
 
   copyObjects(collision_world, collision_world_df);
-  ROS_DEBUG_STREAM(__PRETTY_FUNCTION__<<": copied objects from collision_robot_df to collision_world_df");
+  ROS_DEBUG_STREAM("Stomp Planner collision setup completed after "<<(ros::Time::now() - start).toSec()<<" seconds");
 
 
   // first setup the task
@@ -122,34 +124,30 @@ bool StompPlanner::solve(planning_interface::MotionPlanDetailedResponse &res)
                                              collision_robot, collision_world,
                                              collision_robot_df, collision_world_df));
 
-  int num_threads=1;
   STOMP_VERIFY(stomp_task->initialize(num_threads, max_rollouts));
 
   XmlRpc::XmlRpcValue features_xml;
   STOMP_VERIFY(node_handle_.getParam("features", features_xml));
   stomp_task->setFeaturesFromXml(features_xml);
-  stomp_task->setControlCostWeight(0.00001);
+  stomp_task->setControlCostWeight(DEFAULT_CONTROL_COST_WEIGHT);
   stomp_task->setTrajectoryVizPublisher(const_cast<ros::Publisher&>(trajectory_viz_pub_));
   stomp_task->setDistanceFieldVizPublisher((const_cast<ros::Publisher&>(trajectory_viz_pub_)));
   stomp_task->setRobotBodyVizPublisher((const_cast<ros::Publisher&>(robot_body_viz_pub_)));
-
   stomp_task->setMotionPlanRequest(planning_scene_, request_);
-
-  ROS_DEBUG_STREAM(__FUNCTION__<< " Stomp task setup complete");
 
   stomp.reset(new stomp::STOMP());
   stomp->initialize(node_handle_, stomp_task);
 
-  ROS_DEBUG_STREAM(__FUNCTION__<< " Stomp instance created");
-
   // TODO: don't hardcode these params
-  bool success = stomp->runUntilValid(100, 10);
+  start = ros::Time::now();
+  ROS_DEBUG_STREAM("Stomp Planner planning optimization started");
+  bool success = stomp->runUntilValid(DEFAULT_MAX_ITERATIONS,DEFAULT_ITERATIONS_AFTER_COLLISION_FREE);
+  ROS_DEBUG_STREAM("Stomp Planner planning optimization completed after "<<(ros::Time::now() - start).toSec()<<" seconds");
 
   std::vector<Eigen::VectorXd> best_params;
   double best_cost;
   stomp->getBestNoiselessParameters(best_params, best_cost);
   stomp_task->publishTrajectoryMarkers(const_cast<ros::Publisher&>(trajectory_viz_pub_), best_params);
-  ROS_DEBUG_STREAM(__FUNCTION__<< " published trajectory markers");
 
   trajectory_msgs::JointTrajectory trajectory;
   stomp_task->parametersToJointTrajectory(best_params, trajectory);

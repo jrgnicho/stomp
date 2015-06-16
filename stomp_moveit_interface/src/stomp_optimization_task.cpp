@@ -345,9 +345,6 @@ bool StompOptimizationTask::setMotionPlanRequest(const planning_scene::PlanningS
   std::vector<Eigen::VectorXd> params_all;
   policy_->getParametersAll(params_all);
 
-  ROS_DEBUG_STREAM("StompOptimizationTask initialized stomp::CovariantMovementPrimitive policy with num_time_steps: "<<num_time_steps_<<
-                   " and dimensions "<<num_dimensions_<<" and movement_duration: "<<movement_duration_);
-
   // initialize all trajectories
   trajectories_.resize(num_rollouts_+1);
   for (int i=0; i<num_rollouts_+1; ++i)
@@ -383,13 +380,9 @@ bool StompOptimizationTask::setMotionPlanRequest(const planning_scene::PlanningS
     }
   }
 
-  ROS_DEBUG_STREAM(__PRETTY_FUNCTION__<<"finished setting up features'"<<planning_group_name_<<"' joint model group");
-  //policy_->writeToFile(std::string("/tmp/test.txt"));
-
-  //if (publish_distance_fields_)
-  if (false)
+  if (publish_distance_fields_)
   {
-    ROS_DEBUG_STREAM(__PRETTY_FUNCTION__<<" publishing distance fields");
+    ROS_DEBUG_STREAM("StompOptimizationTask publishing distance fields");
     // ping the distance field once to initialize it so that we can publish
     collision_detection::CollisionRequest collision_request;
     collision_detection::CollisionResult collision_result;
@@ -427,16 +420,11 @@ bool StompOptimizationTask::setMotionPlanRequest(const planning_scene::PlanningS
     viz_robot_body_pub_.publish(body_marker_array);*/
   }
 
-  ROS_DEBUG_STREAM(__PRETTY_FUNCTION__<<" completed");
-
   return true;
 }
 
 void StompOptimizationTask::parametersToJointTrajectory(const std::vector<Eigen::VectorXd>& parameters, trajectory_msgs::JointTrajectory& trajectory)
 {
-  ROS_DEBUG_STREAM(__PRETTY_FUNCTION__<<" parameters vector is of dimensions "<<parameters.size()<<" x "<<
-                   (parameters.size() > 0 ? parameters.front().size() : 0));
-  ROS_DEBUG_STREAM(__PRETTY_FUNCTION__<<" num_time_steps "<<num_time_steps_<<", num_dimensions "<<num_dimensions_);
 
   //kinematic_model_->getJoin
   trajectory.joint_names = joint_model_group_->getVariableNames();
@@ -454,8 +442,6 @@ void StompOptimizationTask::parametersToJointTrajectory(const std::vector<Eigen:
 //    stomp::differentiate(parameters[d], stomp::STOMP_VELOCITY, vels[d], dt_);
 //    stomp::differentiate(parameters[d], stomp::STOMP_ACCELERATION, accs[d], dt_);
 //  }
-
-
 
   for (int i=0; i<num_time_steps_; ++i)
   {
