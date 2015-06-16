@@ -167,7 +167,6 @@ bool PolicyImprovement::generateRollouts(const std::vector<double>& noise_stddev
   STOMP_VERIFY(copyParametersFromPolicy());
 
 
-
   // decide how many new rollouts we will generate and discard
   int num_rollouts_discard = 0;
   int num_rollouts_reused = num_rollouts_;
@@ -179,6 +178,7 @@ bool PolicyImprovement::generateRollouts(const std::vector<double>& noise_stddev
     num_rollouts_discard = 0;
     num_rollouts_reused = num_rollouts_;
   }
+
   if (num_rollouts_ + num_rollouts_gen_ > max_rollouts_)
   {
     num_rollouts_discard = num_rollouts_ + num_rollouts_gen_ - max_rollouts_;
@@ -199,6 +199,7 @@ bool PolicyImprovement::generateRollouts(const std::vector<double>& noise_stddev
       if (c > max_cost)
         max_cost = c;
     }
+
     double cost_denom = max_cost - min_cost;
     if (cost_denom < 1e-8)
       cost_denom = 1e-8;
@@ -268,7 +269,7 @@ bool PolicyImprovement::generateRollouts(const std::vector<double>& noise_stddev
 
     double p1 = l1 / (l1 + l2);
     double p2 = l2 / (l1 + l2);
-    ROS_INFO("d = %d, l1 = %f, l2 = %f, p1 = %f, p2 = %f", d, l1, l2, p1, p2);
+    ROS_DEBUG("d = %d, l1 = %f, l2 = %f, p1 = %f, p2 = %f", d, l1, l2, p1, p2);
 
     for (int r=0; r<num_rollouts_gen_; ++r)
     {

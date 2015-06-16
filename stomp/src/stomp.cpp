@@ -233,7 +233,7 @@ bool STOMP::runSingleIteration(const int iteration_number)
 
   if (write_to_file_)
   {
-    ROS_DEBUG_STREAM(__FUNCTION__<< " writing to function");
+    ROS_DEBUG_STREAM(__FUNCTION__<< " reading policy from file");
     // load new policy if neccessary
     STOMP_VERIFY(readPolicy(iteration_number));
   }
@@ -241,21 +241,18 @@ bool STOMP::runSingleIteration(const int iteration_number)
 
   //ROS_ASSERT(doRollouts(iteration_number));
   doRollouts(iteration_number);
-  //ROS_DEBUG_STREAM(__FUNCTION__<< " completed doRollouts()");
 
   //ROS_ASSERT(doUpdate(iteration_number));
   doUpdate(iteration_number);
-  //ROS_DEBUG_STREAM(__FUNCTION__<< " completed doUpdate()");
 
   //ROS_ASSERT(doNoiselessRollout(iteration_number));
   doNoiselessRollout(iteration_number);
-  //ROS_DEBUG_STREAM(__FUNCTION__<< " completed doNoiselessRollout()");
-  //ROS_DEBUG_STREAM(__FUNCTION__<< " completed single iteration");
 
   if (write_to_file_)
   {
     // store updated policy to disc
-    //STOMP_VERIFY(writePolicy(iteration_number));
+    ROS_DEBUG_STREAM(__FUNCTION__<< " writing policy to file");
+    STOMP_VERIFY(writePolicy(iteration_number));
     //STOMP_VERIFY(writePolicyImprovementStatistics(stats_msg));
   }
 

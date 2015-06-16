@@ -54,7 +54,7 @@ void StompPlanner::getPlanningAlgorithms(std::vector<std::string> &algs) const
 
 bool StompPlanner::solve(planning_interface::MotionPlanResponse &res)
 {
-  ROS_INFO("STOMP: solve() called.");
+  ROS_INFO("STOMP: solve() started.");
   ros::WallTime start_time = ros::WallTime::now();
   planning_interface::MotionPlanDetailedResponse detailed_res;
   bool success = solve(detailed_res);
@@ -87,7 +87,7 @@ bool StompPlanner::solve(planning_interface::MotionPlanDetailedResponse &res)
 
   collision_robot = planning_scene_->getCollisionRobot();
   collision_world = planning_scene_->getCollisionWorld();
-  //std::map<std::string, std::vector<collision_detection::CollisionSphere> > link_body_decompositions;
+  std::map<std::string, std::vector<collision_detection::CollisionSphere> > link_body_decompositions;
   bool use_signed_distance_field = true;
   double padding = 0.0;
   double scale = 1.0;
@@ -96,9 +96,24 @@ bool StompPlanner::solve(planning_interface::MotionPlanDetailedResponse &res)
   //link_body_decompositions["r_shoulder_pan_link"] = std::vector<collision_detection::CollisionSphere>();
   //link_body_decompositions["r_shoulder_lift_link"] = std::vector<collision_detection::CollisionSphere>();
 
-  collision_robot_df.reset(new collision_detection::CollisionRobotDistanceField(kinematic_model_));
-  collision_world_df.reset(new collision_detection::CollisionWorldDistanceField());
+  ROS_DEBUG_STREAM(__PRETTY_FUNCTION__<<": Setting up collision objects");
+  collision_robot_df.reset(new collision_detection::CollisionRobotDistanceField(kinematic_model_,
+                                                                                link_body_decompositions,
+                                                                                df_size_x_, df_size_y_, df_size_z_,
+                                                                                use_signed_distance_field,
+                                                                                df_resolution_, df_collision_tolerance_,
+                                                                                df_max_propagation_distance_,
+                                                                                padding, scale));
+  ROS_DEBUG_STREAM(__PRETTY_FUNCTION__<<": Created collision_detection::CollisionRobotDistanceField object");
+
+  collision_world_df.reset(new collision_detection::CollisionWorldDistanceField(df_size_x_, df_size_y_, df_size_z_,
+                                                                                use_signed_distance_field,
+                                                                                df_resolution_, df_collision_tolerance_,
+                                                                                df_max_propagation_distance_));
+  ROS_DEBUG_STREAM(__PRETTY_FUNCTION__<<": Created collision_detection::CollisionRobotDistanceField object");
+
   copyObjects(collision_world, collision_world_df);
+  ROS_DEBUG_STREAM(__PRETTY_FUNCTION__<<": copied objects from collision_robot_df to collision_world_df");
 
 
   // first setup the task
@@ -133,14 +148,15 @@ bool StompPlanner::solve(planning_interface::MotionPlanDetailedResponse &res)
   std::vector<Eigen::VectorXd> best_params;
   double best_cost;
   stomp->getBestNoiselessParameters(best_params, best_cost);
-  //stomp_task->publishTrajectoryMarkers(const_cast<ros::Publisher&>(trajectory_viz_pub_), best_params);
+  stomp_task->publishTrajectoryMarkers(const_cast<ros::Publisher&>(trajectory_viz_pub_), best_params);
   ROS_DEBUG_STREAM(__FUNCTION__<< " published trajectory markers");
+
   trajectory_msgs::JointTrajectory trajectory;
   stomp_task->parametersToJointTrajectory(best_params, trajectory);
   ROS_DEBUG_STREAM(__FUNCTION__<< " Stomp analysis completed");
 
   moveit::core::RobotState robot_state(planning_scene_->getRobotModel());
-  res.trajectory_.resize(1);
+  res.trajectory_.resize(1,robot_trajectory::RobotTrajectoryPtr(new robot_trajectory::RobotTrajectory(kinematic_model_,request_.group_name)));
   res.trajectory_.back()->setRobotTrajectoryMsg( robot_state,trajectory);
   res.description_.resize(1);
   res.description_[0] = "STOMP";
@@ -150,12 +166,13 @@ bool StompPlanner::solve(planning_interface::MotionPlanDetailedResponse &res)
 
   if (!success)
   {
-    ROS_ERROR("STOMP: failed to find a collision-free plan");
+    ROS_WARN("STOMP: failed to find a collision-free plan");
     res.error_code_.val = moveit_msgs::MoveItErrorCodes::PLANNING_FAILED;
-    return false;
+    //return false;
   }
 
   res.error_code_.val = moveit_msgs::MoveItErrorCodes::SUCCESS;
+  ROS_DEBUG_STREAM(__PRETTY_FUNCTION__<< " Finished");
 
   // res.trajectory
   // res.description

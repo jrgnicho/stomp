@@ -105,14 +105,17 @@ void StompOptimizationTask::setFeatures(std::vector<boost::shared_ptr<StompCostF
 
   // init feature splits
   num_features_ = feature_set_->getNumValues();
-  ROS_INFO("STOMP: Using %ld features classes with %d values", features.size(), num_features_);
+  ROS_DEBUG("STOMP: Using %ld features classes with %d values", features.size(), num_features_);
   num_split_features_ = num_features_ * num_feature_basis_functions_;
 
   feature_basis_centers_.resize(num_feature_basis_functions_);
   feature_basis_stddev_.resize(num_feature_basis_functions_);
   double separation = 100.0;
   if (num_feature_basis_functions_ > 1)
+  {
     separation = (1.0 / (num_feature_basis_functions_-1));
+  }
+
   for (int i=0; i<num_feature_basis_functions_; ++i)
   {
     feature_basis_centers_[i] = i * separation;
@@ -126,10 +129,10 @@ void StompOptimizationTask::setFeatures(std::vector<boost::shared_ptr<StompCostF
 
   std::vector<std::string> feature_names;
   feature_set_->getNames(feature_names);
-  ROS_INFO("Features loaded:");
+  ROS_DEBUG("Features loaded:");
   for (int i=0; i<num_features_; ++i)
   {
-    ROS_INFO("%2d) %s", i, feature_names[i].c_str());
+    ROS_DEBUG("%2d) %s", i, feature_names[i].c_str());
   }
 }
 
@@ -208,20 +211,20 @@ void StompOptimizationTask::computeFeatures(std::vector<Eigen::VectorXd>& parame
   }
 
   // print validities
-  if (rollout_id == num_rollouts_)
-  {
-    std::stringstream ss;
-    ss << "[";
-    for (int t=0; t<num_time_steps_all_; ++t)
-    {
-      if (trajectories_[rollout_id]->validities_[t])
-        ss << "_";
-      else
-        ss << "X";
-    }
-    ss << "]";
-    ROS_INFO("%s", ss.str().c_str());
-  }
+//  if (rollout_id == num_rollouts_)
+//  {
+//    std::stringstream ss;
+//    ss << "[";
+//    for (int t=0; t<num_time_steps_all_; ++t)
+//    {
+//      if (trajectories_[rollout_id]->validities_[t])
+//        ss << "_";
+//      else
+//        ss << "X";
+//    }
+//    ss << "]";
+//    ROS_DEBUG("%s", ss.str().c_str());
+//  }
 
 }
 
@@ -291,7 +294,6 @@ bool StompOptimizationTask::setMotionPlanRequest(const planning_scene::PlanningS
   }
 
   joint_model_group_ = kinematic_model_->getJointModelGroup(planning_group_name_);
-  ROS_INFO_STREAM("StompOptimizationTask retrieved "<<planning_group_name_<<" joint model group");
 
   num_dimensions_ = joint_model_group_->getVariableCount();
 
@@ -359,8 +361,6 @@ bool StompOptimizationTask::setMotionPlanRequest(const planning_scene::PlanningS
     trajectories_[i]->validities_.resize(num_time_steps_all_, 1);
     trajectories_[i]->setJointPositions(params_all, 0);
   }
-
-  ROS_INFO_STREAM("StompOptimizationTask initialized 'trajectories' arrays");
 
   // set up feature basis functions
   std::vector<double> feature_split_magnitudes(num_feature_basis_functions_);
