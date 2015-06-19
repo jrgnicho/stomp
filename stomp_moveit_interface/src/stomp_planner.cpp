@@ -166,16 +166,11 @@ bool StompPlanner::solve(planning_interface::MotionPlanDetailedResponse &res)
   {
     ROS_WARN("STOMP: failed to find a collision-free plan");
     res.error_code_.val = moveit_msgs::MoveItErrorCodes::PLANNING_FAILED;
-    //return false;
+    return false;
   }
 
   res.error_code_.val = moveit_msgs::MoveItErrorCodes::SUCCESS;
-  ROS_DEBUG_STREAM(__PRETTY_FUNCTION__<< " Finished");
 
-  // res.trajectory
-  // res.description
-  // res.processing_time
-  // res.error_code
 
   return true;
 }
