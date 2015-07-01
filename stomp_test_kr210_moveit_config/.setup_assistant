@@ -5,4 +5,4 @@ moveit_setup_assistant_config:
   SRDF:
     relative_path: config/test_kr210.srdf
   CONFIG:
-    generated_timestamp: 1435698049
+    generated_timestamp: 1435788935
