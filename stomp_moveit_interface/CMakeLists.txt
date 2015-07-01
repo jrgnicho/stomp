@@ -55,7 +55,7 @@ target_link_libraries(stomp_planner_plugin stomp_moveit_interface ${catkin_LIBRA
 add_executable(test_stomp_moveit_interface
   test/test_stomp_moveit_interface.cpp
 )
-target_link_libraries(test_stomp_moveit_interface stomp_moveit_interface)
+target_link_libraries(test_stomp_moveit_interface stomp_moveit_interface ${catkin_LIBRARIES})
 
 
 
