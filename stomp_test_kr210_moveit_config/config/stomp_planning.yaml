@@ -21,7 +21,7 @@ collision_space:
   max_propagation_distance: 0.25
 
 # Stomp Planner solve()
-max_rollouts: 20
+max_rollouts: 100
 
 # Unknown
 min_rollouts: 20
