@@ -75,6 +75,18 @@ bool StompPlanner::solve(planning_interface::MotionPlanResponse &res)
   return success;
 }
 
+void StompPlanner::printCollisionRobot()
+{
+  boost::shared_ptr<const collision_detection::CollisionRobot> collision_robot = planning_scene_->getCollisionRobot();
+  const std::map<std::string,double>& padding_map = collision_robot->getLinkPadding();
+  for(std::map<std::string,double>::const_iterator iter = padding_map.begin();
+      iter != padding_map.end();iter++)
+  {
+    ROS_INFO_STREAM("Collision Robot Link: "<<iter->first);
+  }
+
+}
+
 bool StompPlanner::solve(planning_interface::MotionPlanDetailedResponse &res)
 {
   ros::WallTime start_time = ros::WallTime::now();
@@ -91,6 +103,7 @@ bool StompPlanner::solve(planning_interface::MotionPlanDetailedResponse &res)
   boost::shared_ptr<collision_detection::CollisionRobotDistanceField> collision_robot_df;    /**< distance field robot collision checker */
   boost::shared_ptr<collision_detection::CollisionWorldDistanceField> collision_world_df;    /**< distance field robot -> world collision checker */
 
+  printCollisionRobot();
 
   collision_robot = planning_scene_->getCollisionRobot();
   collision_world = planning_scene_->getCollisionWorld();

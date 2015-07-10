@@ -26,6 +26,7 @@ public:
 
   void setJointPositions(const std::vector<Eigen::VectorXd>& joint_positions, int start_index=0);
   bool filterJoints(std::vector<Eigen::VectorXd>& joint_positions);
+  void update();
 
   int num_time_steps_;
   int num_joints_;

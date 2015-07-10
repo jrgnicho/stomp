@@ -67,6 +67,8 @@ private:
 
   void copyObjects(const boost::shared_ptr<const collision_detection::CollisionWorld>& from_world,
                    const boost::shared_ptr<collision_detection::CollisionWorld>& to_world) const;
+
+  void printCollisionRobot();
 };
 
 } /* namespace stomp_moveit_interface */

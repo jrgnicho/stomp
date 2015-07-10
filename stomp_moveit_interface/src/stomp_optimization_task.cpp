@@ -390,7 +390,7 @@ bool StompOptimizationTask::setMotionPlanRequest(const planning_scene::PlanningS
     collision_request.contacts = true;
     collision_request.max_contacts = 100;
     //boost::shared_ptr<collision_detection::GroupStateRepresentation> gsr;
-    kinematic_state.update(true);
+    kinematic_state.updateLinkTransforms();
     collision_world_df_->checkRobotCollision(collision_request, collision_result, *collision_robot_df_,
                                         kinematic_state, planning_scene_->getAllowedCollisionMatrix());
     // this is the goal state, there should be no collisions

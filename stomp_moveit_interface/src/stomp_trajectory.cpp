@@ -112,10 +112,20 @@ void StompTrajectory::setJointPositions(const std::vector<Eigen::VectorXd>& join
   joint_vel_ = (covariant_movement_primitive_->getDifferentiationMatrix(stomp::STOMP_VELOCITY) * joint_pos_.transpose()).transpose();
   joint_acc_ = (covariant_movement_primitive_->getDifferentiationMatrix(stomp::STOMP_ACCELERATION) * joint_pos_.transpose()).transpose();
 
+
+  update();
   // TODO: compute endeffector vel and acc
 
   // TODO: update collision spheres
 
+}
+
+void StompTrajectory::update()
+{
+  for(unsigned int i = 0; i < kinematic_states_.size(); i++)
+  {
+    kinematic_states_[i].updateLinkTransforms();
+  }
 }
 
 void StompTrajectory::getVisualizationMarker(visualization_msgs::Marker& marker,

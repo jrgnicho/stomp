@@ -116,11 +116,17 @@ void CollisionFeature::computeValuesAndGradients(const boost::shared_ptr<StompTr
 
         double potential = 0.0;
         if (distance >= clearance_)
+        {
           potential = 0.0;
+        }
         else if (distance >= 0.0)
+        {
           potential = 0.5 * (distance - clearance_) * (distance - clearance_) / clearance_;
+        }
         else // distance < 0.0
+        {
           potential = -distance + 0.5 * clearance_;
+        }
 
         feature_values(t,0) += potential;
 
