@@ -83,9 +83,16 @@ bool StompTrajectory::filterJoints(std::vector<Eigen::VectorXd>& joint_positions
 
 void StompTrajectory::setJointPositions(const std::vector<Eigen::VectorXd>& joint_positions, int start_index)
 {
-  ROS_ASSERT(joint_positions.size() == num_joints_);
+  //ROS_ASSERT(joint_positions.size() == num_joints_);
+  if(joint_positions.size() != num_joints_)
+  {
+    ROS_DEBUG_STREAM("Number of expected joints ["<< num_joints_ <<" ] differs from number of passed joints ["<<
+                     joint_positions.size() <<"]");
+  }
+
+  int num_joints = num_joints_ > joint_positions.size() ? joint_positions.size() : num_joints_;
   int max_input_length = 0;
-  for (int i = 0; i < num_joints_; ++i)
+  for (int i = 0; i < num_joints; ++i)
   {
     int input_length = joint_positions[i].rows();
     joint_pos_.row(i).segment(start_index, input_length) = joint_positions[i];

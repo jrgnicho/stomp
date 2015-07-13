@@ -386,9 +386,10 @@ bool StompOptimizationTask::setMotionPlanRequest(const planning_scene::PlanningS
     // ping the distance field once to initialize it so that we can publish
     collision_detection::CollisionRequest collision_request;
     collision_detection::CollisionResult collision_result;
-    collision_request.group_name = planning_group_name_;
+    collision_request.group_name = planning_group_name_;    
     collision_request.contacts = true;
-    collision_request.max_contacts = 100;
+    collision_request.max_contacts = 1;
+    collision_result.collision = false;
     //boost::shared_ptr<collision_detection::GroupStateRepresentation> gsr;
     kinematic_state.updateLinkTransforms();
     collision_world_df_->checkRobotCollision(collision_request, collision_result, *collision_robot_df_,
@@ -403,6 +404,8 @@ bool StompOptimizationTask::setMotionPlanRequest(const planning_scene::PlanningS
       {
         ROS_ERROR("Collision between %s and %s", it->first.first.c_str(), it->first.second.c_str());
       }
+
+      return false;
     }
 
 /*    boost::shared_ptr<const distance_field::DistanceField> robot_df = collision_robot_df_->getLastDistanceFieldEntry()->distance_field_;
