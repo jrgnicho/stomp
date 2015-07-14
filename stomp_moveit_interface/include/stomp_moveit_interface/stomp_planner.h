@@ -55,7 +55,8 @@ private:
   moveit::core::RobotModelConstPtr kinematic_model_;
 
   // distance field params
-  double df_size_x_, df_size_y_, df_size_z_;
+  Eigen::Vector3f df_size_;
+  Eigen::Vector3f df_origin_;
   double df_resolution_;
   double df_collision_tolerance_;
   double df_max_propagation_distance_;

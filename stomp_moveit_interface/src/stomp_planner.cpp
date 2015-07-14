@@ -24,13 +24,15 @@ const static int DEFAULT_ITERATIONS_AFTER_COLLISION_FREE = 10;
 const static double DEFAULT_CONTROL_COST_WEIGHT = 0.001;
 const static double DEFAULT_PADDING = 0.001;
 const static double DEFAULT_SCALE = 1.0;
+const static int OPTIMIZATION_TASK_THREADS = 1;
+const static bool USE_SIGNED_DISTANCE_FIELD = true;
 
 StompPlanner::StompPlanner(const std::string& group):
     PlanningContext("STOMP",group),
     node_handle_("~")
 {
-  trajectory_viz_pub_ = node_handle_.advertise<visualization_msgs::Marker>("marker", 20);
-  robot_body_viz_pub_ = node_handle_.advertise<visualization_msgs::MarkerArray>("marker_array", 20);
+  trajectory_viz_pub_ = node_handle_.advertise<visualization_msgs::Marker>("stomp_trajectory", 20);
+  robot_body_viz_pub_ = node_handle_.advertise<visualization_msgs::MarkerArray>("stomp_robot", 20);
 
 }
 
@@ -43,12 +45,19 @@ void StompPlanner::init(const moveit::core::RobotModelConstPtr& model)
   kinematic_model_ = model;
 
   // read distance field params
-  STOMP_VERIFY(node_handle_.getParam("collision_space/size_x", df_size_x_));
-  STOMP_VERIFY(node_handle_.getParam("collision_space/size_y", df_size_y_));
-  STOMP_VERIFY(node_handle_.getParam("collision_space/size_z", df_size_z_));
+  double sx, sy ,sz, orig_x,orig_y,orig_z;
+  STOMP_VERIFY(node_handle_.getParam("collision_space/size_x", sx));
+  STOMP_VERIFY(node_handle_.getParam("collision_space/size_y", sy));
+  STOMP_VERIFY(node_handle_.getParam("collision_space/size_z", sz));
+  STOMP_VERIFY(node_handle_.getParam("collision_space/origin_x", orig_x));
+  STOMP_VERIFY(node_handle_.getParam("collision_space/origin_y", orig_y));
+  STOMP_VERIFY(node_handle_.getParam("collision_space/origin_z", orig_z));
   STOMP_VERIFY(node_handle_.getParam("collision_space/resolution", df_resolution_));
   STOMP_VERIFY(node_handle_.getParam("collision_space/collision_tolerance", df_collision_tolerance_));
   STOMP_VERIFY(node_handle_.getParam("collision_space/max_propagation_distance", df_max_propagation_distance_));
+
+  df_size_ = Eigen::Vector3f(sx,sy,sz);
+  df_origin_ = Eigen::Vector3f(orig_x,orig_y,orig_z);
 }
 
 void StompPlanner::getPlanningAlgorithms(std::vector<std::string> &algs) const
@@ -93,9 +102,6 @@ bool StompPlanner::solve(planning_interface::MotionPlanDetailedResponse &res)
   boost::shared_ptr<StompOptimizationTask> stomp_task;
   boost::shared_ptr<stomp::STOMP> stomp;
 
-  int max_rollouts;
-  int num_threads=1;
-  STOMP_VERIFY(node_handle_.getParam("max_rollouts", max_rollouts));
 
   // prepare the collision checkers
   boost::shared_ptr<const collision_detection::CollisionRobot> collision_robot; /**< standard robot collision checker */
@@ -107,23 +113,19 @@ bool StompPlanner::solve(planning_interface::MotionPlanDetailedResponse &res)
 
   collision_robot = planning_scene_->getCollisionRobot();
   collision_world = planning_scene_->getCollisionWorld();
-  std::map<std::string, std::vector<collision_detection::CollisionSphere> > link_body_decompositions;
-  bool use_signed_distance_field = true;
-  double padding = DEFAULT_PADDING;
-  double scale = DEFAULT_SCALE;
 
   ros::Time start = ros::Time::now();
   ROS_DEBUG_STREAM("Stomp Planner collision setup started");
-  collision_robot_df.reset(new collision_detection::CollisionRobotDistanceField(kinematic_model_,
-                                                                                link_body_decompositions,
-                                                                                df_size_x_, df_size_y_, df_size_z_,
-                                                                                use_signed_distance_field,
-                                                                                df_resolution_, df_collision_tolerance_,
-                                                                                df_max_propagation_distance_,
-                                                                                padding, scale));
+  collision_robot_df.reset(new collision_detection::CollisionRobotDistanceField(*collision_robot,
+                                                                                df_size_,
+                                                                                df_origin_,
+                                                                                USE_SIGNED_DISTANCE_FIELD,
+                                                                                df_resolution_,
+                                                                                df_collision_tolerance_,
+                                                                                df_max_propagation_distance_));
 
-  collision_world_df.reset(new collision_detection::CollisionWorldDistanceField(df_size_x_, df_size_y_, df_size_z_,
-                                                                                use_signed_distance_field,
+  collision_world_df.reset(new collision_detection::CollisionWorldDistanceField(df_size_.x(), df_size_.y(), df_size_.z(),
+                                                                                USE_SIGNED_DISTANCE_FIELD,
                                                                                 df_resolution_, df_collision_tolerance_,
                                                                                 df_max_propagation_distance_));
 
@@ -131,21 +133,24 @@ bool StompPlanner::solve(planning_interface::MotionPlanDetailedResponse &res)
   ROS_DEBUG_STREAM("Stomp Planner collision setup completed after "<<(ros::Time::now() - start).toSec()<<" seconds");
 
 
-  // first setup the task
+  // setup optimization taks
+  int max_rollouts;
+  int num_threads=OPTIMIZATION_TASK_THREADS;
+  STOMP_VERIFY(node_handle_.getParam("max_rollouts", max_rollouts));
   stomp_task.reset(new StompOptimizationTask(node_handle_, request_.group_name,
                                              kinematic_model_,
                                              collision_robot, collision_world,
                                              collision_robot_df, collision_world_df));
-
   STOMP_VERIFY(stomp_task->initialize(num_threads, max_rollouts));
+
 
   XmlRpc::XmlRpcValue features_xml;
   STOMP_VERIFY(node_handle_.getParam("features", features_xml));
   stomp_task->setFeaturesFromXml(features_xml);
   stomp_task->setControlCostWeight(DEFAULT_CONTROL_COST_WEIGHT);
   stomp_task->setTrajectoryVizPublisher(const_cast<ros::Publisher&>(trajectory_viz_pub_));
-  stomp_task->setDistanceFieldVizPublisher((const_cast<ros::Publisher&>(trajectory_viz_pub_)));
-  stomp_task->setRobotBodyVizPublisher((const_cast<ros::Publisher&>(robot_body_viz_pub_)));
+  //stomp_task->setDistanceFieldVizPublisher((const_cast<ros::Publisher&>(trajectory_viz_pub_)));
+  //stomp_task->setRobotBodyVizPublisher((const_cast<ros::Publisher&>(robot_body_viz_pub_)));
   stomp_task->setMotionPlanRequest(planning_scene_, request_);
 
   stomp.reset(new stomp::STOMP());

@@ -29,7 +29,8 @@ StompOptimizationTask::StompOptimizationTask(ros::NodeHandle node_handle,
     collision_robot_(collision_robot),
     collision_world_(collision_world),
     collision_robot_df_(collision_robot_df),
-    collision_world_df_(collision_world_df)
+    collision_world_df_(collision_world_df),
+    publish_distance_fields_(false)
 {
 //  viz_pub_ = node_handle_.advertise<visualization_msgs::Marker>("stomp_trajectories", 20);
   max_rollout_markers_published_ = 0;
@@ -390,7 +391,6 @@ bool StompOptimizationTask::setMotionPlanRequest(const planning_scene::PlanningS
     collision_request.contacts = true;
     collision_request.max_contacts = 1;
     collision_result.collision = false;
-    //boost::shared_ptr<collision_detection::GroupStateRepresentation> gsr;
     kinematic_state.updateLinkTransforms();
     collision_world_df_->checkRobotCollision(collision_request, collision_result, *collision_robot_df_,
                                         kinematic_state, planning_scene_->getAllowedCollisionMatrix());
@@ -408,11 +408,12 @@ bool StompOptimizationTask::setMotionPlanRequest(const planning_scene::PlanningS
       return false;
     }
 
-/*    boost::shared_ptr<const distance_field::DistanceField> robot_df = collision_robot_df_->getLastDistanceFieldEntry()->distance_field_;
+    double max_distance = 1;
+    boost::shared_ptr<const distance_field::DistanceField> robot_df = collision_robot_df_->getLastDistanceFieldEntry()->distance_field_;
     boost::shared_ptr<const distance_field::DistanceField> world_df = collision_world_df_->getDistanceField();
     visualization_msgs::Marker robot_df_marker, world_df_marker;
-    robot_df->getIsoSurfaceMarkers(0.0, 0.03, reference_frame_, ros::Time::now(), Eigen::Affine3d::Identity(), robot_df_marker);
-    world_df->getIsoSurfaceMarkers(0.0, 0.03, reference_frame_, ros::Time::now(), Eigen::Affine3d::Identity(), world_df_marker);
+    robot_df->getIsoSurfaceMarkers(-max_distance, max_distance, reference_frame_, ros::Time::now(), robot_df_marker);
+    world_df->getIsoSurfaceMarkers(-max_distance, max_distance, reference_frame_, ros::Time::now(), world_df_marker);
     robot_df_marker.ns="robot_distance_field";
     world_df_marker.ns="world_distance_field";
     viz_distance_field_pub_.publish(robot_df_marker);
@@ -420,8 +421,9 @@ bool StompOptimizationTask::setMotionPlanRequest(const planning_scene::PlanningS
 
     // visualize the robot model too
     visualization_msgs::MarkerArray body_marker_array;
-    getBodySphereVisualizationMarkers(gsr, reference_frame_, ros::Time::now(), body_marker_array);
-    viz_robot_body_pub_.publish(body_marker_array);*/
+    boost::shared_ptr<collision_detection::GroupStateRepresentation> gsr;
+    //getBodySphereVisualizationMarkers(gsr, reference_frame_, ros::Time::now(), body_marker_array);
+    viz_robot_body_pub_.publish(body_marker_array);
   }
 
   return true;

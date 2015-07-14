@@ -1,17 +1,19 @@
 Panels:
   - Class: rviz/Displays
-    Help Height: 78
+    Help Height: 0
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /MotionPlanning1
         - /MotionPlanning1/Scene Geometry1
         - /MotionPlanning1/Scene Robot1
         - /MotionPlanning1/Planning Request1
         - /MotionPlanning1/Planning Metrics1
         - /MotionPlanning1/Planned Path1
+        - /Marker1
+        - /Marker1/Namespaces1
+        - /MarkerArray1
       Splitter Ratio: 0.74256
-    Tree Height: 78
+    Tree Height: 156
   - Class: rviz/Help
     Name: Help
   - Class: rviz/Views
@@ -200,6 +202,25 @@ Visualization Manager:
         Show Robot Collision: false
         Show Robot Visual: true
       Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /move_group/stomp_trajectory
+      Name: Marker
+      Namespaces:
+        noiseless: true
+        noisy: false
+        robot_distance_field: false
+        world_distance_field: false
+      Queue Size: 100
+      Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: /move_group/stomp_robot
+      Name: MarkerArray
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -215,22 +236,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 7.33197
+      Distance: 10.1197
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.767023
-        Y: -0.318878
+        X: 1.26866
+        Y: -0.406811
         Z: -1.49006e-08
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.454797
+      Pitch: 0.219797
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 1.87676
+      Yaw: 1.76176
     Saved: ~
 Window Geometry:
   Displays:
@@ -246,5 +267,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1410
-  X: 201
-  Y: 28
+  X: 304
+  Y: 40
