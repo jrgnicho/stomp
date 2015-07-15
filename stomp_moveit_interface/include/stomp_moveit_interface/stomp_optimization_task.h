@@ -58,11 +58,9 @@ public:
 
   bool setMotionPlanRequest(const planning_scene::PlanningSceneConstPtr& planning_scene,
                    const moveit_msgs::MotionPlanRequest &req);
-//  void setPlanningScene(const planning_scene::PlanningSceneConstPtr& scene);
-//  void setMotionPlanRequest(const moveit_msgs::MotionPlanRequest& request);
 
   void setInitialTrajectory(const std::vector<sensor_msgs::JointState>& joint_states);
-  void getTrajectory(std::vector<sensor_msgs::JointState>& joint_states);
+  //void getTrajectory(std::vector<sensor_msgs::JointState>& joint_states);
   void setToMinControlCostTrajectory();
 
   void setFeatureWeights(const std::vector<double>& weights);
@@ -77,7 +75,7 @@ public:
   // this function overwrites the last noiseless rollout!
   void publishTrajectoryMarkers(ros::Publisher& viz_pub, const std::vector<Eigen::VectorXd>& parameters);
 
-  void publishCollisionModelMarkers(int rollout_number);
+  void publishCollisionModelMarkers(ros::Publisher& viz_robot_body_pub, int point_index = -1);
 
   void parametersToJointTrajectory(const std::vector<Eigen::VectorXd>& parameters, trajectory_msgs::JointTrajectory& trajectory);
 
@@ -98,7 +96,6 @@ public:
   void setDistanceFieldVizPublisher(ros::Publisher& viz_distance_field_pub);
   void setRobotBodyVizPublisher(ros::Publisher& viz_robot_body_pub);
 
-  //const StompRobotModel::StompPlanningGroup* getPlanningGroup();
 
 private:
   boost::shared_ptr<stomp::CovariantMovementPrimitive> policy_;

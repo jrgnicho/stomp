@@ -305,7 +305,6 @@ bool StompOptimizationTask::setMotionPlanRequest(const planning_scene::PlanningS
   const sensor_msgs::JointState &js = request.start_state.joint_state;
   kinematic_state.setVariablePositions(js.name,js.position);
 
-  //kinematic_state.getJointStateGroup(planning_group_name_)->getVariableValues(start_joints_);
   start_joints_.clear();
   kinematic_state.copyJointGroupPositions(planning_group_name_,start_joints_);
 
@@ -419,11 +418,7 @@ bool StompOptimizationTask::setMotionPlanRequest(const planning_scene::PlanningS
     viz_distance_field_pub_.publish(robot_df_marker);
     viz_distance_field_pub_.publish(world_df_marker);
 
-    // visualize the robot model too
-    visualization_msgs::MarkerArray body_marker_array;
-    boost::shared_ptr<collision_detection::GroupStateRepresentation> gsr;
-    //getBodySphereVisualizationMarkers(gsr, reference_frame_, ros::Time::now(), body_marker_array);
-    viz_robot_body_pub_.publish(body_marker_array);
+
   }
 
   return true;
@@ -534,25 +529,25 @@ void StompOptimizationTask::setFeatureWeights(const Eigen::VectorXd& weights)
 //  policy_->setParameters(params);
 //}
 
-//void StompOptimizationTask::getTrajectory(std::vector<sensor_msgs::JointState>& joint_states)
-//{
-//  std::vector<Eigen::VectorXd> params(num_dimensions_, Eigen::VectorXd::Zero(num_time_steps_));
-//  policy_->getParameters(params);
-//  joint_states.resize(num_time_steps_);
-//  ros::Time start_time = ros::Time::now();
-//
-//  for (int t=0; t<num_time_steps_; ++t)
-//  {
-//    joint_states[t].header.stamp = start_time + ros::Duration(t*dt_);
-//    joint_states[t].name.resize(planning_group_->num_joints_);
-//    joint_states[t].position.resize(planning_group_->num_joints_);
-//    for (unsigned int sj=0; sj<planning_group_->stomp_joints_.size(); ++sj)
-//    {
-//      joint_states[t].name[sj] = planning_group_->stomp_joints_[sj].joint_name_;
-//      joint_states[t].position[sj] = params[sj](t);
-//    }
-//  }
-//}
+/*void StompOptimizationTask::getTrajectory(std::vector<sensor_msgs::JointState>& joint_states)
+{
+  std::vector<Eigen::VectorXd> params(num_dimensions_, Eigen::VectorXd::Zero(num_time_steps_));
+  policy_->getParameters(params);
+  joint_states.resize(num_time_steps_);
+  ros::Time start_time = ros::Time::now();
+
+  for (int t=0; t<num_time_steps_; ++t)
+  {
+    joint_states[t].header.stamp = start_time + ros::Duration(t*dt_);
+    joint_states[t].name.resize(planning_group_->num_joints_);
+    joint_states[t].position.resize(planning_group_->num_joints_);
+    for (unsigned int sj=0; sj<planning_group_->stomp_joints_.size(); ++sj)
+    {
+      joint_states[t].name[sj] = planning_group_->stomp_joints_[sj].joint_name_;
+      joint_states[t].position[sj] = params[sj](t);
+    }
+  }
+}*/
 
 void StompOptimizationTask::setToMinControlCostTrajectory()
 {
@@ -571,20 +566,21 @@ void StompOptimizationTask::getNoiselessRolloutData(boost::shared_ptr<const Stom
   noiseless_rollout = trajectories_[num_rollouts_];
 }
 
-//void StompOptimizationTask::publishCollisionModelMarkers(int rollout_number)
-//{
-//  int rollout_id = num_rollouts_;
-//  if (rollout_number >= 0)
-//    rollout_id = rollout_number;
-//  PerRolloutData* data = &per_rollout_data_[rollout_id];
-//
-//  // animate
-//  for (unsigned int i=0; i<data->cost_function_input_.size(); ++i)
-//  {
-//    data->cost_function_input_[i]->publishVizMarkers(ros::Time::now(), viz_pub_);
-//    ros::Duration(dt_).sleep();
-//  }
-//}
+void StompOptimizationTask::publishCollisionModelMarkers(ros::Publisher& viz_robot_body_pub,int point_index)
+{
+
+  boost::shared_ptr<const collision_detection::GroupStateRepresentation> gsr = collision_world_df_->getLastGroupStateRepresentation();
+  if(gsr)
+  {
+    visualization_msgs::MarkerArray body_marker_array;
+    getBodySphereVisualizationMarkers(gsr,reference_frame_,body_marker_array);
+    viz_robot_body_pub.publish(body_marker_array);
+  }
+  else
+  {
+    ROS_WARN_STREAM("Last GroupStateRepresentation object in Collision World is empty, skipping collision model visualization");
+  }
+}
 
 void StompOptimizationTask::publishTrajectoryMarkers(ros::Publisher& viz_pub, const std::vector<Eigen::VectorXd>& parameters)
 {

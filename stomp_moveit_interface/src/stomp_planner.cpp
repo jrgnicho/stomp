@@ -166,6 +166,7 @@ bool StompPlanner::solve(planning_interface::MotionPlanDetailedResponse &res)
   double best_cost;
   stomp->getBestNoiselessParameters(best_params, best_cost);
   stomp_task->publishTrajectoryMarkers(const_cast<ros::Publisher&>(trajectory_viz_pub_), best_params);
+  stomp_task->publishCollisionModelMarkers(robot_body_viz_pub_);
 
   trajectory_msgs::JointTrajectory trajectory;
   stomp_task->parametersToJointTrajectory(best_params, trajectory);
@@ -188,8 +189,6 @@ bool StompPlanner::solve(planning_interface::MotionPlanDetailedResponse &res)
   }
 
   res.error_code_.val = moveit_msgs::MoveItErrorCodes::SUCCESS;
-
-
   return true;
 }
 
