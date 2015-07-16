@@ -22,8 +22,8 @@ namespace stomp_moveit_interface
 const static int DEFAULT_MAX_ITERATIONS = 100;
 const static int DEFAULT_ITERATIONS_AFTER_COLLISION_FREE = 10;
 const static double DEFAULT_CONTROL_COST_WEIGHT = 0.001;
-const static double DEFAULT_PADDING = 0.001;
 const static double DEFAULT_SCALE = 1.0;
+const static double DEFAULT_PADDING = 0.05f;
 const static int OPTIMIZATION_TASK_THREADS = 1;
 const static bool USE_SIGNED_DISTANCE_FIELD = true;
 
@@ -122,7 +122,8 @@ bool StompPlanner::solve(planning_interface::MotionPlanDetailedResponse &res)
                                                                                 USE_SIGNED_DISTANCE_FIELD,
                                                                                 df_resolution_,
                                                                                 df_collision_tolerance_,
-                                                                                df_max_propagation_distance_));
+                                                                                df_max_propagation_distance_,
+                                                                                DEFAULT_PADDING));
 
   collision_world_df.reset(new collision_detection::CollisionWorldDistanceField(df_size_.x(), df_size_.y(), df_size_.z(),
                                                                                 USE_SIGNED_DISTANCE_FIELD,
@@ -148,7 +149,7 @@ bool StompPlanner::solve(planning_interface::MotionPlanDetailedResponse &res)
   STOMP_VERIFY(node_handle_.getParam("features", features_xml));
   stomp_task->setFeaturesFromXml(features_xml);
   stomp_task->setControlCostWeight(DEFAULT_CONTROL_COST_WEIGHT);
-  stomp_task->setTrajectoryVizPublisher(const_cast<ros::Publisher&>(trajectory_viz_pub_));
+  //stomp_task->setTrajectoryVizPublisher(const_cast<ros::Publisher&>(trajectory_viz_pub_));
   //stomp_task->setDistanceFieldVizPublisher((const_cast<ros::Publisher&>(trajectory_viz_pub_)));
   //stomp_task->setRobotBodyVizPublisher((const_cast<ros::Publisher&>(robot_body_viz_pub_)));
   stomp_task->setMotionPlanRequest(planning_scene_, request_);
@@ -165,6 +166,7 @@ bool StompPlanner::solve(planning_interface::MotionPlanDetailedResponse &res)
   std::vector<Eigen::VectorXd> best_params;
   double best_cost;
   stomp->getBestNoiselessParameters(best_params, best_cost);
+
   stomp_task->publishTrajectoryMarkers(const_cast<ros::Publisher&>(trajectory_viz_pub_), best_params);
   stomp_task->publishCollisionModelMarkers(robot_body_viz_pub_);
 

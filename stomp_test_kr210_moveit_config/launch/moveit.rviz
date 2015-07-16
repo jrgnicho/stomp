@@ -207,10 +207,7 @@ Visualization Manager:
       Marker Topic: /move_group/stomp_trajectory
       Name: Marker
       Namespaces:
-        noiseless: true
-        noisy: false
-        robot_distance_field: false
-        world_distance_field: false
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/MarkerArray
@@ -218,7 +215,7 @@ Visualization Manager:
       Marker Topic: /move_group/stomp_robot
       Name: MarkerArray
       Namespaces:
-        {}
+        manipulator_sphere_decomposition: true
       Queue Size: 100
       Value: true
   Enabled: true
@@ -236,7 +233,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 10.1197
+      Distance: 4.69963
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
@@ -248,10 +245,10 @@ Visualization Manager:
         Z: -1.49006e-08
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.219797
+      Pitch: 0.354797
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 1.76176
+      Yaw: 1.93676
     Saved: ~
 Window Geometry:
   Displays:
@@ -267,5 +264,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1410
-  X: 304
-  Y: 40
+  X: 294
+  Y: 30

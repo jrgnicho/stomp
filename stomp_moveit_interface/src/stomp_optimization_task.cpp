@@ -30,7 +30,9 @@ StompOptimizationTask::StompOptimizationTask(ros::NodeHandle node_handle,
     collision_world_(collision_world),
     collision_robot_df_(collision_robot_df),
     collision_world_df_(collision_world_df),
-    publish_distance_fields_(false)
+    publish_distance_fields_(false),
+    publish_trajectory_markers_(false)
+
 {
 //  viz_pub_ = node_handle_.advertise<visualization_msgs::Marker>("stomp_trajectories", 20);
   max_rollout_markers_published_ = 0;
@@ -417,7 +419,6 @@ bool StompOptimizationTask::setMotionPlanRequest(const planning_scene::PlanningS
     world_df_marker.ns="world_distance_field";
     viz_distance_field_pub_.publish(robot_df_marker);
     viz_distance_field_pub_.publish(world_df_marker);
-
 
   }
 
