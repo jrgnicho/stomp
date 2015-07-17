@@ -1,8 +1,3 @@
-# Collision Feature
-report_validity: true
-collision_clearance: 0.04
-debug_collisions: false
-
 # Stomp Optimization Task
 num_feature_basis_functions: 1
 trajectory_duration: 4.0
@@ -10,14 +5,14 @@ num_time_steps: 50
 
 # Stomp Planner init()
 collision_space:
-  size_x: 4.0
-  size_y: 4.0
-  size_z: 8.0
-  origin_x: 0.0
-  origin_y: 0.0
-  origin_z: 0.0
+  size_x: 4.0 # The X dimension in meters of the volume to represent
+  size_y: 4.0 # The Y dimension in meters of the volume to represent
+  size_z: 4.0 # The Z dimension in meters of the volume to represent
+  origin_x: -2.0 # The minimum X point of the volume
+  origin_y: -2.0 # The minimum Y point of the volume
+  origin_z: 0.0 # The minimum Z point of the volume
   resolution: 0.05
-  collision_tolerance: 0.1
+  collision_tolerance: 0.05
   max_propagation_distance: 8
 
 # Stomp Planner solve()
@@ -34,7 +29,7 @@ use_noise_adaptation: true
 #noise_min_stddev: [0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
 
 noise_stddev: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
-noise_min_stddev: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+noise_min_stddev: [0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
 noise_decay:  [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
 write_to_file: false
 use_openmp: false
@@ -43,5 +38,5 @@ features:
 -
   class: stomp_moveit_interface/CollisionFeature
   report_validity: false # report state validity based on distance field
-  collision_clearance: 0.05
+  collision_clearance: 0.1
   debug_collisions: false

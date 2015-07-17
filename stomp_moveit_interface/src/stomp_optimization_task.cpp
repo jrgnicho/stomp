@@ -567,20 +567,13 @@ void StompOptimizationTask::getNoiselessRolloutData(boost::shared_ptr<const Stom
   noiseless_rollout = trajectories_[num_rollouts_];
 }
 
-void StompOptimizationTask::publishCollisionModelMarkers(ros::Publisher& viz_robot_body_pub,int point_index)
+void StompOptimizationTask::publishCollisionModelMarkers(ros::Publisher& viz_robot_body_pub) const
 {
 
-  boost::shared_ptr<const collision_detection::GroupStateRepresentation> gsr = collision_world_df_->getLastGroupStateRepresentation();
-  if(gsr)
-  {
-    visualization_msgs::MarkerArray body_marker_array;
-    getBodySphereVisualizationMarkers(gsr,reference_frame_,body_marker_array);
-    viz_robot_body_pub.publish(body_marker_array);
-  }
-  else
-  {
-    ROS_WARN_STREAM("Last GroupStateRepresentation object in Collision World is empty, skipping collision model visualization");
-  }
+  visualization_msgs::MarkerArray body_marker_array;
+  const moveit::core::RobotState& state = trajectories_[num_rollouts_]->kinematic_states_.back();
+  collision_robot_df_->createCollisionModelMarker(state,body_marker_array);
+  viz_robot_body_pub.publish(body_marker_array);
 }
 
 void StompOptimizationTask::publishTrajectoryMarkers(ros::Publisher& viz_pub, const std::vector<Eigen::VectorXd>& parameters)

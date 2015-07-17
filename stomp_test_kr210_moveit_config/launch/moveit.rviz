@@ -4,6 +4,7 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
+        - /MotionPlanning1
         - /MotionPlanning1/Scene Geometry1
         - /MotionPlanning1/Scene Robot1
         - /MotionPlanning1/Planning Request1
@@ -207,7 +208,7 @@ Visualization Manager:
       Marker Topic: /move_group/stomp_trajectory
       Name: Marker
       Namespaces:
-        {}
+        noiseless: true
       Queue Size: 100
       Value: true
     - Class: rviz/MarkerArray
@@ -233,7 +234,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 4.69963
+      Distance: 3.31752
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
@@ -245,10 +246,10 @@ Visualization Manager:
         Z: -1.49006e-08
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.354797
+      Pitch: 0.189797
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 1.93676
+      Yaw: 2.41176
     Saved: ~
 Window Geometry:
   Displays:
@@ -264,5 +265,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1410
-  X: 294
-  Y: 30
+  X: 284
+  Y: 20
